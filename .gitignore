@@ -1,0 +1,15 @@
+node_modules/
+dist/
+*.tsbuildinfo
+*.vsix
+
+.idea/
+.vscode/*
+!.vscode/launch.json
+.claude/
+*.swp
+
+.DS_Store
+Thumbs.db
+
+*.log

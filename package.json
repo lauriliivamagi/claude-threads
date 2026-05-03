@@ -1,0 +1,91 @@
+{
+  "name": "claude-threads",
+  "displayName": "Claude Threads for Markdown",
+  "description": "Spawn Claude Code conversations anchored to selections in markdown documents.",
+  "version": "0.1.0",
+  "publisher": "lauriliivamagi",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0",
+    "node": ">=20"
+  },
+  "type": "commonjs",
+  "main": "./dist/extension.js",
+  "categories": [
+    "AI",
+    "Notebooks"
+  ],
+  "keywords": [
+    "claude",
+    "claude-code",
+    "markdown",
+    "threads",
+    "research",
+    "notes",
+    "scratch files",
+    "pkm",
+    "selection"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lauriliivamagi/claude-threads.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lauriliivamagi/claude-threads/issues"
+  },
+  "homepage": "https://github.com/lauriliivamagi/claude-threads#readme",
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "threads.spawnFromSelection",
+        "title": "Threads: Spawn from Selection"
+      },
+      {
+        "command": "threads.discardThread",
+        "title": "Threads: Discard Thread"
+      },
+      {
+        "command": "threads.promoteThread",
+        "title": "Threads: Promote Thread"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "threads.spawnFromSelection",
+          "when": "editorHasSelection && editorLangId == markdown",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "clean": "node -e \"require('node:fs').rmSync('dist', {recursive: true, force: true})\"",
+    "build:bundle": "pnpm clean && esbuild src/extension.ts --bundle --platform=node --target=node20 --external:vscode --format=cjs --outfile=dist/extension.js --minify --sourcemap",
+    "check": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "fmt": "prettier --write '**/*.{ts,json,md}'",
+    "fmt:check": "prettier --check '**/*.{ts,json,md}'",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@types/node": "^25.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.0.0",
+    "esbuild": "^0.24.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^2.1.0"
+  },
+  "packageManager": "pnpm@10.6.1"
+}
