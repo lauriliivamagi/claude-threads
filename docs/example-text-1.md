@@ -1,6 +1,6 @@
 **Design Science Research (DSR)** is a fantastic paradigm to test this hierarchy on because it is fundamentally different from traditional scientific research.
 
-While natural and behavioral sciences try to understand reality as it currently is (_"What is happening?"_), Design Science Research actively tries to change reality by creating new things (_"How can we build a solution to fix this problem?"_). It is deeply rooted in Information Systems and Engineering, focusing on building and evaluating **[artifacts](./artifact-in-design-science-research.md)** (like new software, algorithms, or processes).
+While natural and behavioral sciences try to understand reality as it currently is (_"What is happening?"_), Design Science Research actively tries to change reality by creating new things (_"How can we build a solution to fix this problem?"_). It is deeply rooted in Information Systems and Engineering, focusing on building and evaluating \*\*artifact (like new software, algorithms, or processes).
 
 Let’s run DSR through the 11-step epistemological cascade.
 
@@ -12,14 +12,13 @@ Here is how the layers of your research align from the deepest philosophy to the
 
 - **1. Tradition (The Culture):** _Information Systems (IS)._ You are operating within a decades-old academic tradition that studies how humans, organizations, and technology interact to improve business and social outcomes.
 - **2. Ontology (The Reality):** _Pragmatism / Socio-Technical Reality._ You believe that the reality of the "waiting room backlog" is not just a law of nature; it is a human-made problem that can be physically altered and improved by introducing a new technological artifact.
-  ([→ Compatible ontologies for Design Science Research](./compatible-ontologies-for-dsr.md))
 - **3. Epistemology (The Knowledge):** _Pragmatic Epistemology._ You believe that "truth" and "valid knowledge" are defined by practical utility. In this research, if the AI kiosk successfully reduces wait times without harming patients, the knowledge generated is considered valid. "True" means "it works."
 
 ### Layer 2: The Mantle (Translation & Strategy)
 
 - **4. Paradigm (The Stance):** _Design Science._ Instead of just observing the unhappy patients (Behavioral Science), your stance is to actively design, build, and implement a solution.
 - **5. Theory (The Explanation):** _Queueing Theory._ You draw upon this established mathematical theory, which explains how lines form and how bottlenecks occur in service industries, to inform how your kiosk should process people.
-- **6. Methodology (The Strategy):** _The DSRM (Design Science Research Methodology)._ Your overarching strategy dictates a strict, iterative cycle: **Build** the artifact, **[Evaluate](./dsr-evaluation-methods-and-simulation.md)** it in context, learn from the failures, and **Re-build** it until it solves the problem.
+- **6. Methodology (The Strategy):** _The DSRM (Design Science Research Methodology)._ Your overarching strategy dictates a strict, iterative cycle: **Build** the artifact, **Evaluate** it in context, learn from the failures, and **Re-build** it until it solves the problem.
 
 ### Layer 3: The Surface (Action & Logistics)
 
