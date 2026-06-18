@@ -98,7 +98,7 @@ None beyond the extension being loaded. If `workspaceState` has zero records, an
 ### Side effects
 
 1. Reads the scratch file and extracts everything under `## Notes`.
-2. Invokes `claude -p '<prompt>'` (non-interactive) with the notes body. Expects a JSON response of the shape `{title, slug}`. Output is parsed leniently (markdown fences and surrounding prose tolerated). The slug is then sanitized to `[a-z0-9-]`, max 50 chars.
+2. Derives `{title, slug}` locally from the notes body — no `claude` invocation. The title is the first markdown heading, else the first non-empty line, cleaned of inline markup and capped to 8 words. The slug is that title lowercased and sanitized to `[a-z0-9-]`, max 50 chars.
 3. Writes `<sourceDir>/<slug>.md` containing `# <title>` followed by the notes body.
 4. In the source document, replaces every occurrence of `](./<oldScratchFilename>)` with `](./<slug>.md)`. Saves. The link **text** (the user's original selected passage) is left unchanged — promotion is a target rewrite, not a prose edit.
 5. `workspace.fs.delete` of the old scratch file (best-effort).
@@ -111,12 +111,11 @@ None beyond the extension being loaded. If `workspaceState` has zero records, an
 
 ### Failure modes
 
-| Failure                                      | Behavior                                                                       |
-| -------------------------------------------- | ------------------------------------------------------------------------------ |
-| `## Notes` body is empty                     | Error toast; nothing changes.                                                  |
-| `claude` not on PATH                         | Error toast; nothing changes.                                                  |
-| `claude -p` returns unparseable text         | Error toast (with first 200 chars of output); nothing changes.                 |
-| `<slug>.md` already exists in `<sourceDir>/` | Error toast; nothing changes. User can rename the conflict by hand and re-run. |
+| Failure                                      | Behavior                                                                             |
+| -------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `## Notes` body is empty                     | Error toast; nothing changes.                                                        |
+| No title can be derived from the notes       | Error toast; nothing changes. Happens when the notes are only whitespace or symbols. |
+| `<slug>.md` already exists in `<sourceDir>/` | Error toast; nothing changes. User can rename the conflict by hand and re-run.       |
 
 ### Notes
 

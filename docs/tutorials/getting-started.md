@@ -90,7 +90,7 @@ Use this when the `## Notes` section of your scratch file contains something you
 
 1. Open the Command Palette → **Threads: Promote Thread**.
 2. Pick the same thread from the quick-pick list.
-3. Wait a few seconds for the notification "Threads: deriving title and slug from notes…" — the extension is asking `claude -p` once for a title and slug derived from your `## Notes` body.
+3. Promotion completes right away — the extension derives a title and slug locally from your `## Notes` body (its first heading, else its first line). No `claude` call is made.
 
 When it finishes:
 

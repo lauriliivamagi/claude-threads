@@ -10,6 +10,7 @@ src/
 ├── state.ts                 # ThreadMeta workspaceState wrapper
 ├── scratchFile.ts           # pure scratch-file content renderer
 ├── linkInsertion.ts         # link build / find-and-remove helpers
+├── titleSlug.ts             # pure promote title/slug derivation
 └── commands/
     ├── spawnFromSelection.ts
     ├── discardThread.ts
@@ -46,4 +47,4 @@ See [docs/reference/vscode-commands.md](docs/reference/vscode-commands.md) for f
 ## Known gotchas
 
 - VSCode extensions must be CommonJS — the host loads them via `require()`. Keep `"type": "commonjs"` and `"module": "CommonJS"` in tsconfig.
-- The `claude` CLI must be on `PATH`. `spawnFromSelection` opens a terminal that runs `claude '<prompt>'`. `promoteThread` runs `claude -p '<prompt>'` non-interactively to derive a title and slug.
+- The `claude` CLI must be on `PATH` for `spawnFromSelection`, which opens a terminal that runs `claude '<prompt>'`. `promoteThread` derives its title and slug locally with no `claude` call — see [src/titleSlug.ts](src/titleSlug.ts). (`claude -p` was dropped because it is metered and not covered by the subscription.)

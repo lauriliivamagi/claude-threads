@@ -23,20 +23,19 @@ The conversation reached a useful conclusion and the notes under `## Notes` are 
 
 - The thread you want to promote exists in `workspaceState`.
 - The scratch file has non-empty content under its `## Notes` heading.
-- The `claude` CLI is on your `PATH`. The command invokes `claude -p` once, non-interactively, to derive a title and slug from the notes body.
 
 ## Steps
 
 1. Open the Command Palette → **Threads: Promote Thread**.
 2. Pick the thread from the quick-pick list (same shape as the discard picker).
-3. Wait for the progress notification "Threads: deriving title and slug from notes…" to finish. This typically takes a few seconds; it's a single `claude -p` call.
+3. The new note is created immediately — the title and slug are derived locally from the notes, with no network round-trip.
 
 ## What happens
 
 In order:
 
 1. The body under `## Notes` is extracted from the scratch file.
-2. `claude -p` is asked to return `{title, slug}` for that body.
+2. A title and slug are derived locally from that body: the title is the first markdown heading, else the first non-empty line (cleaned of inline markup and capped to 8 words); the slug is that title lowercased and sanitized to `[a-z0-9-]`.
 3. A new file `<slug>.md` is written next to the source document. Its content is `# <title>` followed by the verbatim notes body. The `# Inquiry`, `## Source`, and `## Selected excerpt` sections are dropped.
 4. In the source document, the link **target** that pointed to the old `scratch-<ts>.md` is rewritten to point to `<slug>.md`. The link **text** (your original selected passage) is **not** changed — it still reads as the surrounding prose intends.
 5. The old scratch file is deleted.
@@ -63,13 +62,12 @@ The scratch file's `## Notes` section contains a several-paragraph analysis. Aft
 
 ## Failure modes and what to do
 
-| Symptom                                              | What it means                                                        | Fix                                                                                     |
-| ---------------------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `scratch file has no content under "## Notes"`       | You haven't written notes yet.                                       | Add notes (or have Claude do so) and re-run.                                            |
-| `\`claude\` CLI not found on PATH`                   | The `claude` binary is missing.                                      | Install Claude Code and ensure `which claude` resolves.                                 |
-| `could not parse title/slug from claude output`      | The model returned text that wasn't valid JSON.                      | Re-run; if it persists, tighten or simplify the notes content and retry.                |
-| `"<slug>.md" already exists in the source directory` | Title-derived slug collides with an existing file.                   | Rename the conflict, or run promote a second time so the model picks a different title. |
-| Warning: `link in <source> could not be retargeted`  | The exact `](./<scratch>.md)` substring isn't in the source anymore. | Promotion still completed; fix the source link by hand or with `git diff`.              |
+| Symptom                                              | What it means                                                          | Fix                                                                                                          |
+| ---------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `scratch file has no content under "## Notes"`       | You haven't written notes yet.                                         | Add notes (or have Claude do so) and re-run.                                                                 |
+| `could not derive a title from the notes`            | The notes are only whitespace or symbols, so no title could be formed. | Add a heading or a line of prose under `## Notes` and re-run.                                                |
+| `"<slug>.md" already exists in the source directory` | The derived slug collides with an existing file.                       | Rename the existing file, or edit the notes' first heading/line so a different slug is derived, then re-run. |
+| Warning: `link in <source> could not be retargeted`  | The exact `](./<scratch>.md)` substring isn't in the source anymore.   | Promotion still completed; fix the source link by hand or with `git diff`.                                   |
 
 ## What promotion does NOT do
 

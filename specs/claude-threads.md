@@ -72,7 +72,7 @@ claude '<prompt>'
 
 The prompt names the scratch file (relative to the workspace root), the source location with line range, and repeats the user's inquiry. The user types into the same terminal afterwards.
 
-`Threads: Promote Thread` additionally invokes `claude -p '<prompt>'` once, non-interactively, to derive the new file's title and slug from the `## Notes` body.
+`Threads: Promote Thread` makes no `claude` call. It derives the new file's title and slug locally from the `## Notes` body (first markdown heading, else first non-empty line).
 
 ## Discard Semantics
 
@@ -89,7 +89,7 @@ If either of the first two steps fails (link edited away, scratch file moved or 
 `Threads: Promote Thread` does, in order:
 
 1. Read the scratch file and extract the body under `## Notes`. Abort if empty.
-2. Call `claude -p` with the notes body, expecting `{title, slug}` JSON in return. The slug is sanitized to `[a-z0-9-]`, max 50 chars.
+2. Derive `{title, slug}` locally from the notes body. The title is the first markdown heading, else the first non-empty line, cleaned of inline markup and capped to 8 words; the slug is that title lowercased and sanitized to `[a-z0-9-]`, max 50 chars. Abort if no usable title can be derived (e.g. the notes are only whitespace or symbols).
 3. Write `<sourceDir>/<slug>.md` containing `# <title>` followed by the notes body. Abort if a file with that name already exists.
 4. Replace every occurrence of `](./<oldScratchFilename>)` in the source document with `](./<slug>.md)`. The link text is left untouched.
 5. Delete the old scratch file.

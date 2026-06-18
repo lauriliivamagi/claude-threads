@@ -23,7 +23,7 @@ Claude Threads turns any markdown selection into a one-command conversation:
 2. The selection becomes a markdown link to a sibling `scratch-<timestamp>.md`. A terminal opens with `claude` already loaded with the inquiry, source location, and scratch path as context.
 3. When the thread runs to its conclusion, run one of:
    - **Threads: Discard Thread** — link reverts, scratch file deletes. Nothing in the document changes; the trail closes silently.
-   - **Threads: Promote Thread** — Claude derives a title and slug from your `## Notes` body, the scratch file becomes a named permanent note, and the link's target retargets in place. The link text stays exactly as you selected it.
+   - **Threads: Promote Thread** — a title and slug are derived locally from your `## Notes` body, the scratch file becomes a named permanent note, and the link's target retargets in place. The link text stays exactly as you selected it.
 
 Three commands. The document keeps reading naturally throughout.
 
@@ -48,7 +48,7 @@ pnpm build:bundle      # produces dist/extension.js
 ## Requirements
 
 - VSCode 1.85+
-- The [Claude Code](https://claude.com/claude-code) CLI on your `PATH`. The extension runs `claude` (interactive) for spawn and `claude -p` (non-interactive) for promote.
+- The [Claude Code](https://claude.com/claude-code) CLI on your `PATH`. The extension runs `claude` (interactive) when you spawn a thread. Promote needs no `claude` call — its title and slug are derived locally.
 
 ## Documentation
 

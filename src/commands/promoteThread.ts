@@ -1,13 +1,13 @@
 import * as vscode from "vscode";
-import { execFile, type ChildProcess } from "node:child_process";
 import { listThreads, removeThread, type ThreadMeta } from "../state.js";
 import { findLinkTargetSpans } from "../linkInsertion.js";
+import { deriveTitleSlug } from "../titleSlug.js";
 import { truncate } from "../utils.js";
 
 /**
  * `threads.promoteThread` — finalize a thread:
- *   1. Ask Claude (via `claude -p`) for a title + slug derived from the
- *      `## Notes` body of the scratch file.
+ *   1. Derive a title + slug locally from the `## Notes` body of the scratch
+ *      file (first heading, else first line — no network call).
  *   2. Write `<sourceDir>/<slug>.md` containing `# <title>\n\n<notes>`.
  *   3. Update the link target in the source markdown from the old scratch
  *      filename to `<slug>.md`. The link text (the user's selected passage)
@@ -60,15 +60,13 @@ export async function promoteThread(
     return;
   }
 
-  const titleSlug = await vscode.window.withProgress(
-    {
-      location: vscode.ProgressLocation.Notification,
-      title: "Threads: deriving title and slug from notes…",
-      cancellable: true,
-    },
-    (_progress, token) => askClaudeForTitleSlug(notes, folder.uri.fsPath, token)
-  );
-  if (!titleSlug) return;
+  const titleSlug = deriveTitleSlug(notes);
+  if (!titleSlug) {
+    vscode.window.showErrorMessage(
+      'Threads: could not derive a title from the notes. Add a heading or some prose under "## Notes".'
+    );
+    return;
+  }
 
   const { title, slug } = titleSlug;
   const newFilename = `${slug}.md`;
@@ -111,102 +109,6 @@ export async function promoteThread(
   } else {
     vscode.window.showInformationMessage(`Threads: promoted to ${newFilename} ("${title}").`);
   }
-}
-
-async function askClaudeForTitleSlug(
-  notes: string,
-  cwd: string,
-  token: vscode.CancellationToken
-): Promise<{ title: string; slug: string } | null> {
-  const prompt =
-    `Return ONLY a single-line JSON object with two fields and nothing else:\n` +
-    `- "title": a 3-8 word sentence-case summary of the notes below, no filler like "Notes on" or "Analysis of"\n` +
-    `- "slug": kebab-case derived from the title, lowercase, only [a-z0-9-], max 50 chars\n\n` +
-    `Notes:\n${notes}`;
-
-  let child: ChildProcess | null = null;
-  let cancelled = false;
-  const cancelSubscription = token.onCancellationRequested(() => {
-    cancelled = true;
-    child?.kill();
-  });
-
-  let stdout: string;
-  try {
-    stdout = await new Promise<string>((resolve, reject) => {
-      child = execFile("claude", ["-p", prompt], { cwd, maxBuffer: 1024 * 1024 }, (err, out) => {
-        if (err) reject(err);
-        else resolve(out);
-      });
-    });
-  } catch (err) {
-    if (cancelled) return null;
-    const e = err as NodeJS.ErrnoException;
-    const msg = e.code === "ENOENT" ? "`claude` CLI not found on PATH" : e.message;
-    vscode.window.showErrorMessage(`Threads: failed to invoke claude — ${msg}`);
-    return null;
-  } finally {
-    cancelSubscription.dispose();
-  }
-
-  const parsed = parseTitleSlug(stdout);
-  if (!parsed) {
-    vscode.window.showErrorMessage(
-      `Threads: could not parse title/slug from claude output: ${stdout.slice(0, 200)}`
-    );
-    return null;
-  }
-
-  const title = parsed.title.trim();
-  const slug = sanitizeSlug(parsed.slug);
-  if (!title || !slug) {
-    vscode.window.showErrorMessage("Threads: could not derive a valid title/slug.");
-    return null;
-  }
-  return { title, slug };
-}
-
-function parseTitleSlug(stdout: string): { title: string; slug: string } | null {
-  const cleaned = stdout
-    .trim()
-    .replace(/^```(?:json)?\s*/i, "")
-    .replace(/\s*```$/, "")
-    .trim();
-
-  const tryParse = (text: string): { title: string; slug: string } | null => {
-    try {
-      const obj = JSON.parse(text) as unknown;
-      if (
-        obj &&
-        typeof obj === "object" &&
-        typeof (obj as { title?: unknown }).title === "string" &&
-        typeof (obj as { slug?: unknown }).slug === "string"
-      ) {
-        return {
-          title: (obj as { title: string }).title,
-          slug: (obj as { slug: string }).slug,
-        };
-      }
-    } catch {
-      // fall through
-    }
-    return null;
-  };
-
-  const direct = tryParse(cleaned);
-  if (direct) return direct;
-
-  const match = cleaned.match(/\{[\s\S]*\}/);
-  if (match) return tryParse(match[0]);
-  return null;
-}
-
-function sanitizeSlug(raw: string): string {
-  return raw
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 50);
 }
 
 function extractNotesBody(scratchContent: string): string | null {
